@@ -1,1 +1,2 @@
-# docker-elasticsearch
+# docker-redis
+small and quick redis image

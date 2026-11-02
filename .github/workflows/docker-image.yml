@@ -35,7 +35,7 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform }}
-          outputs: type=image,name=sharinpix/docker-elasticsearch,push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=sharinpix/docker-redis,push-by-digest=true,name-canonical=true,push=true
           provenance: false
           cache-from: type=gha,scope=${{ matrix.cache-scope }}
           cache-to: type=gha,mode=max,scope=${{ matrix.cache-scope }}
@@ -72,23 +72,19 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Set image tag
         run: |
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-            tag="$(date -u +%Y%m%d-%H%M%S)"
-          else
-            branch="$(printf '%s' "$GITHUB_REF_NAME" \
-              | tr '[:upper:]' '[:lower:]' \
-              | sed -E 's/[^a-z0-9._-]+/-/g; s/^[._-]+//; s/[._-]+$//' \
-              | cut -c1-50 \
-              | sed -E 's/[._-]+$//')"
-            tag="${branch:-branch}-${GITHUB_RUN_NUMBER}"
-          fi
-          echo "IMAGE=sharinpix/docker-elasticsearch:${tag}" >> "$GITHUB_ENV"
-          echo "Image: sharinpix/docker-elasticsearch:${tag}"
+          branch="$(printf '%s' "$GITHUB_REF_NAME" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9._-]+/-/g; s/^[._-]+//; s/[._-]+$//' \
+            | cut -c1-50 \
+            | sed -E 's/[._-]+$//')"
+          tag="${branch:-branch}-$(date -u +%Y%m%d)-${GITHUB_RUN_NUMBER}"
+          echo "IMAGE=sharinpix/docker-redis:${tag}" >> "$GITHUB_ENV"
+          echo "Image: sharinpix/docker-redis:${tag}"
       - name: Create and push manifest
         working-directory: /tmp/digests
         run: |
           args=()
           while IFS= read -r digest; do
-            args+=("sharinpix/docker-elasticsearch@sha256:${digest}")
+            args+=("sharinpix/docker-redis@sha256:${digest}")
           done < <(find . -type f -printf '%f\n')
           docker buildx imagetools create -t "$IMAGE" "${args[@]}"

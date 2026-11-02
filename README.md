@@ -1,1 +1,3 @@
-# docker-heroku
+# docker-redis
+
+small and quick redis image

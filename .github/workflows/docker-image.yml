@@ -72,16 +72,12 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Set image tag
         run: |
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-            tag="$(date -u +%Y%m%d-%H%M%S)"
-          else
-            branch="$(printf '%s' "$GITHUB_REF_NAME" \
-              | tr '[:upper:]' '[:lower:]' \
-              | sed -E 's/[^a-z0-9._-]+/-/g; s/^[._-]+//; s/[._-]+$//' \
-              | cut -c1-50 \
-              | sed -E 's/[._-]+$//')"
-            tag="${branch:-branch}-${GITHUB_RUN_NUMBER}"
-          fi
+          branch="$(printf '%s' "$GITHUB_REF_NAME" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9._-]+/-/g; s/^[._-]+//; s/[._-]+$//' \
+            | cut -c1-50 \
+            | sed -E 's/[._-]+$//')"
+          tag="${branch:-branch}-$(date -u +%Y%m%d)-${GITHUB_RUN_NUMBER}"
           echo "IMAGE=sharinpix/docker-redis:${tag}" >> "$GITHUB_ENV"
           echo "Image: sharinpix/docker-redis:${tag}"
       - name: Create and push manifest

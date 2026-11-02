@@ -35,7 +35,7 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform }}
-          outputs: type=image,name=sharinpix/docker-redis,push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=sharinpix/docker,push-by-digest=true,name-canonical=true,push=true
           provenance: false
           cache-from: type=gha,scope=${{ matrix.cache-scope }}
           cache-to: type=gha,mode=max,scope=${{ matrix.cache-scope }}
@@ -78,13 +78,13 @@ jobs:
             | cut -c1-50 \
             | sed -E 's/[._-]+$//')"
           tag="${branch:-branch}-$(date -u +%Y%m%d)-${GITHUB_RUN_NUMBER}"
-          echo "IMAGE=sharinpix/docker-redis:${tag}" >> "$GITHUB_ENV"
-          echo "Image: sharinpix/docker-redis:${tag}"
+          echo "IMAGE=sharinpix/docker:${tag}" >> "$GITHUB_ENV"
+          echo "Image: sharinpix/docker:${tag}"
       - name: Create and push manifest
         working-directory: /tmp/digests
         run: |
           args=()
           while IFS= read -r digest; do
-            args+=("sharinpix/docker-redis@sha256:${digest}")
+            args+=("sharinpix/docker@sha256:${digest}")
           done < <(find . -type f -printf '%f\n')
           docker buildx imagetools create -t "$IMAGE" "${args[@]}"
